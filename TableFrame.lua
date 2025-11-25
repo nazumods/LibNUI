@@ -145,7 +145,11 @@ function TableFrame:onLoad()
       end
       w = w + c:Width()
     end
-    self:Width(w)
+    self:Width(offset + w)
+    -- force the rows to recompute their bounds
+    for _,r in ipairs(self.rows) do
+      r:Right(self, ui.edge.Right)
+    end
   end
 end
 
