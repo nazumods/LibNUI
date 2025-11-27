@@ -1,23 +1,29 @@
 local _, ns = ...
 local ui = ns.ui
-local unpack = unpack -- luacheck: globals unpack
 local insert = table.insert
-local Class, Frame, BgFrame, Label, Texture = ns.lua.Class, ui.Frame, ui.BgFrame, ui.Label, ui.Texture
+local Class, Frame = ns.lua.Class, ui.Frame
 local TableRow, TableCol, Cell = ui.TableRow, ui.TableCol, ui.Cell
-local Center, Middle, Left = ui.justify.Center, ui.justify.Middle, ui.justify.Left
 local TopRight, BottomLeft, Right = ui.edge.TopRight, ui.edge.BottomLeft, ui.edge.Right
 local Top, Bottom = ui.edge.Top, ui.edge.Bottom
 
--- Creates an empty frame, but lays out its children in a tabular manner.
--- ops:
---   numCols?     int          - defaults to count of column names
---   numRows?     int          - defaults to count of row names
---   colNames?    string array - list of header names at top of columns
---   rowNames?    string array - list of header names at left of rows
---   cellWidth   int          - width of cells in pixels
---   cellHeight  int          - height of cells in pixels
-
 -- making a table: https://www.wowinterface.com/forums/showthread.php?t=58670
+---@class TableFrame: Frame
+---@field autosize? boolean
+---@field GetData? fun(): table
+---@field colInfo? table
+---@field rowInfo? table
+---@field headerFont? string
+---@field colHeaderFont? string
+---@field headerHeight? integer
+---@field cellHeight? integer
+---@field cellWidth? integer
+---@field padding? integer
+---@field rowNames table
+---@field offsetX integer
+---@field rows table
+---@field cols table
+---@field cells table
+---@field rowArea table
 local TableFrame = Class(Frame, function(self)
   if not self.colNames and self.colInfo then
     self.colNames = {}
@@ -61,7 +67,7 @@ local TableFrame = Class(Frame, function(self)
         justifyH = self.colInfo and self.colInfo[i].justifyH,
         font = self.colHeaderFont or self.headerFont,
         color = self.colInfo and self.colInfo[i].color,
-        backdrop = self.colInfo and self.colInfo[i].backdrop or
+        backdrop = self.colInfo and self.colInfo[i].backdrop or self.backdrop or
           {color = {0, 0, 0, math.fmod(i, 2) == 0 and 0.6 or 0.4}},
       })
     end
@@ -92,7 +98,7 @@ local TableFrame = Class(Frame, function(self)
         },
         font = self.rowHeaderFont or self.headerFont,
         color = self.rowInfo and self.rowInfo[i].color,
-        backdrop = self.rowInfo and self.rowInfo[i].backdrop or
+        backdrop = self.rowInfo and self.rowInfo[i].backdrop or self.backdrop or
           {color = {0, 0, 0, math.fmod(i, 2) == 0 and 0.2 or 0}}
       })
     end
@@ -224,7 +230,7 @@ function TableFrame:update()
           position = {
             Top = {self.rows[rowN], Top},
             Bottom = {self.rows[rowN], Bottom},
-            Left = {self.cols[colN], Left},
+            Left = {self.cols[colN], ui.justify.Left},
             Right = {self.cols[colN], Right},
           },
           data = data,
