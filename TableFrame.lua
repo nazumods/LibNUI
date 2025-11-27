@@ -9,6 +9,8 @@ local Top, Bottom = ui.edge.Top, ui.edge.Bottom
 -- making a table: https://www.wowinterface.com/forums/showthread.php?t=58670
 ---@class TableFrame: Frame
 ---@field autosize? boolean
+---@field backdrop? table
+---@field colBackdrop? table
 ---@field GetData? fun(): table
 ---@field colInfo? table
 ---@field rowInfo? table
@@ -67,7 +69,7 @@ local TableFrame = Class(Frame, function(self)
         justifyH = self.colInfo and self.colInfo[i].justifyH,
         font = self.colHeaderFont or self.headerFont,
         color = self.colInfo and self.colInfo[i].color,
-        backdrop = self.colInfo and self.colInfo[i].backdrop or self.backdrop or
+        backdrop = self.colInfo and self.colInfo[i].backdrop or self.backdrop or self.colBackdrop or
           {color = {0, 0, 0, math.fmod(i, 2) == 0 and 0.6 or 0.4}},
       })
     end
@@ -187,7 +189,7 @@ function TableFrame:addCol(info)
     },
     justifyH = self.colInfo and self.colInfo[n].justifyH,
     font = self.colHeaderFont or self.headerFont,
-    backdrop = self.colInfo and self.colInfo[n].backdrop or
+    backdrop = self.colInfo and self.colInfo[n].backdrop or self.backdrop or self.colBackdrop or
       {color = {0, 0, 0, math.fmod(n, 2) == 0 and 0.6 or 0.4}},
   })
   self:Width(self:Width()+w)
@@ -210,7 +212,7 @@ function TableFrame:addRow(info)
       Height = h,
     },
     color = self.rowInfo and self.rowInfo[n].color,
-    backdrop = self.rowInfo and self.rowInfo[n].backdrop or
+    backdrop = self.rowInfo and self.rowInfo[n].backdrop or self.backdrop or
       {color = {0, 0, 0, math.fmod(n, 2) == 0 and 0.2 or 0}},
   })
   self.rowArea:Height(self.rowArea:Height()+h)
