@@ -98,6 +98,7 @@ local TableFrame = Class(Frame, function(self)
           Right = {},
           Height = h,
         },
+        justifyH = self.rowInfo and self.rowInfo[i].justifyH,
         font = self.rowHeaderFont or self.headerFont,
         color = self.rowInfo and self.rowInfo[i].color,
         backdrop = self.rowInfo and self.rowInfo[i].backdrop or self.backdrop or
