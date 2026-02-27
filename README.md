@@ -514,6 +514,24 @@ Inherits `Frame`. Renders a 2D grid with optional column and row headers, altern
 | `addRow(info)`      | Append a row with info table                           |
 | `addCol(info)`      | Append a column with info table                        |
 
+### Dynamic table gotcha
+
+`offsetX` (space reserved for row header labels) and `offsetY` (space reserved for column header labels) are both computed **once at construction time** from whether `rowNames`/`colNames` are non-nil. If you intend to add rows or columns dynamically via `addRow`/`addCol`, pass empty tables for the axes you'll be populating so the offsets are computed correctly:
+
+```lua
+local t = TableFrame:new{
+  rowNames     = {},   -- non-nil → offsetX = headerWidth (room for row labels)
+  colNames     = {},   -- non-nil → offsetY = headerHeight (room for col labels)
+  headerWidth  = 70,
+  headerHeight = 22,
+  cellHeight   = 20,
+}
+t:addCol{name = "Item",  width = 140}
+t:addRow{name = "Weapons"}
+```
+
+Omitting either empty table when you plan to use the corresponding `add*` method will cause the row data and headers to overlap.
+
 ### Cell data format
 
 Each element in the `data` 2D table can be a string or a table:

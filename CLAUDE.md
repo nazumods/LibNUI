@@ -61,6 +61,19 @@ end
 - **Don't use `self._widget` from outside a class** — expose a method instead
 - **Don't break the getter/setter pattern** — no separate `GetFoo`/`SetFoo` pairs
 
+## TableFrame dynamic construction
+
+`offsetX` and `offsetY` are baked in at construction time based on whether `rowNames`/`colNames` are non-nil. When building a table with `addRow`/`addCol` instead of pre-declaring names, pass empty tables so the offsets are correct — otherwise row data and headers will overlap:
+
+```lua
+TableFrame:new{
+  rowNames    = {},  -- ensures offsetX = headerWidth
+  colNames    = {},  -- ensures offsetY = headerHeight
+  headerWidth = 70,
+  ...
+}
+```
+
 ## Secure frames
 
 `SecureButton` uses `SecureActionButtonTemplate`. Never call `SetAttribute` on it during combat (taint). `special = true` on `Frame` registers it as a `UISpecialFrame` (Escape key closes it) and puts the widget in `_G` — only use for top-level addon windows.
