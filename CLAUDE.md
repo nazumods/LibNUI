@@ -17,18 +17,24 @@ local ui = ns.ui
 local Class = ns.lua.Class
 local Frame = ui.Frame  -- or whichever parent
 
+---@class MyWidget: Frame
+---@field someField string   description
 local MyWidget = Class(Frame, function(self)
   -- constructor body; self fields are the options passed to :new{}
 end, {
-  -- default option values (optional)
+  -- default option values — use strings/values not local constants
+  someField = "default",
 })
 ui.MyWidget = MyWidget
 
-function MyWidget:SomeMethod() end
+---@param value string
+---@return MyWidget
+function MyWidget:SomeMethod(value) end
 ```
 
 - Register on `ui` so it's accessible via `LibNUI.MyWidget`
 - Add the file to `LibNUI.toc` in the appropriate section
+- Add a visual test in the adjacent `LibNUI_Test` add-on (see **Testing** below)
 
 ## Conventions
 
@@ -39,6 +45,33 @@ function MyWidget:SomeMethod() end
 | Constructor init fields | `camelCase` (`cellWidth`, `headerHeight`) |
 | Constants | `ui.edge`, `ui.layer`, `ui.justify`, `ui.wrap` |
 | Backing widget | Always `self._widget` |
+
+## Lua language server annotations
+
+Every class and public method must be annotated for LuaLS.
+
+**Class block** (above `Class(...)`):
+```lua
+---@class MyWidget: Frame
+---@field publicField  string   description
+---@field optionalCb   fun(self: MyWidget)?  optional callback
+---@field _internal    table    internal state (still annotate it)
+```
+
+**Methods**:
+```lua
+---@param index number
+---@return Frame
+function MyWidget:Tab(index) end
+
+-- getter/setter: annotate the setter signature; the get path is implicit
+---@param v string?
+---@return string|MyWidget
+function MyWidget:Value(v) end
+```
+
+- Use `?` on `---@field` and `---@param` for optional values
+- `---@return` is required on all non-void public methods
 
 ## Getter/Setter pattern
 
@@ -77,6 +110,33 @@ TableFrame:new{
 ## Secure frames
 
 `SecureButton` uses `SecureActionButtonTemplate`. Never call `SetAttribute` on it during combat (taint). `special = true` on `Frame` registers it as a `UISpecialFrame` (Escape key closes it) and puts the widget in `_G` — only use for top-level addon windows.
+
+## Testing
+
+Visual tests live in the adjacent `LibNUI_Test` add-on (`../LibNUI_Test/`). It is `LoadOnDemand` and launched via `/nui test [key]` in-game.
+
+Each test is a separate file with a `make*()` factory and a `table.insert` registration:
+
+```lua
+local window   = LibNUITest.window    -- creates a TitleFrame helper
+local toggling = LibNUITest.toggling  -- wraps factory as a toggle-aware launcher
+
+---@return TitleFrame
+local function makeMyWidget()
+  local f = window("My Widget", 300, 200)
+  -- build widget, anchor inside f ...
+  return f
+end
+
+table.insert(LibNUITest.tests, {
+  key  = "mywidget",
+  name = "My Widget",
+  desc = "One-line description shown in the selector",
+  run  = toggling(makeMyWidget),
+})
+```
+
+Add the file to `LibNUI_Test/LibNUI_Test.toc` before `entry.lua`.
 
 ## position table reference
 

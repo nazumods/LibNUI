@@ -35,6 +35,7 @@ TableCol.lua
 TableRow.lua
 TableFrame.lua
 TitleFrame.lua
+TabFrame.lua
 Tooltip.lua
 
 # Settings
